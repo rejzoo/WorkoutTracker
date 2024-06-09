@@ -3,5 +3,8 @@
     <string name="Welcome"/>
     <string name="Settings">Settings</string>
     <string name="Home">Home</string>
-    <string name="Trainings">Trainings</string>
+    <string name="Workouts">Workouts</string>
+    <string name="You">You</string>
+    <string name="Exercise">Exercise</string>
+    <string name="Statistics">Statistics</string>
 </resources>

@@ -44,16 +44,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.workouttracker.exercise.ExerciseScreen
 import com.example.workouttracker.home.HomeScreen
 import com.example.workouttracker.settings.SettingsScreen
-import com.example.workouttracker.trainings.TrainingScreen
+import com.example.workouttracker.statistics.StatisticsScreen
 import com.example.workouttracker.ui.theme.WorkoutTrackerTheme
+import com.example.workouttracker.workouts.WorkoutsScreen
+import com.example.workouttracker.you.YouScreen
 
 enum class WorkoutTrackerScreen(@StringRes val title: Int, @DrawableRes val icon: Int) {
     Welcome(R.string.Welcome, R.drawable.dumbbell_solid),
     Settings(R.string.Settings, R.drawable.gear_solid),
     Home(R.string.Home, R.drawable.home),
-    Trainings(R.string.Trainings, R.drawable.dumbbell_solid)
+    Workouts(R.string.Workouts, R.drawable.dumbbell_solid),
+    You(R.string.You, R.drawable.user_solid),
+    Exercise(R.string.Exercise, R.drawable.start_solid),
+    Statistics(R.string.Statistics, R.drawable.statistics_solid)
 }
 
 class Main : ComponentActivity() {
@@ -108,8 +114,17 @@ class Main : ComponentActivity() {
                             composable(WorkoutTrackerScreen.Home.name) {
                                 HomeScreen(navController, Modifier.padding(padding))
                             }
-                            composable(WorkoutTrackerScreen.Trainings.name) {
-                                TrainingScreen(navController, Modifier.padding(padding))
+                            composable(WorkoutTrackerScreen.Workouts.name) {
+                                WorkoutsScreen(navController, Modifier.padding(padding))
+                            }
+                            composable(WorkoutTrackerScreen.You.name) {
+                                YouScreen(navController, Modifier.padding(padding))
+                            }
+                            composable(WorkoutTrackerScreen.Exercise.name) {
+                                ExerciseScreen(navController, Modifier.padding(padding))
+                            }
+                            composable(WorkoutTrackerScreen.Statistics.name) {
+                                StatisticsScreen(navController, Modifier.padding(padding))
                             }
                         }
                     }
@@ -151,7 +166,10 @@ fun NavigationBarButtons(navController: NavController) {
 
     val navigationScreens = listOf(
         WorkoutTrackerScreen.Home,
-        WorkoutTrackerScreen.Trainings
+        WorkoutTrackerScreen.Workouts,
+        WorkoutTrackerScreen.Exercise,
+        WorkoutTrackerScreen.Statistics,
+        WorkoutTrackerScreen.You
     )
 
     NavigationBar {

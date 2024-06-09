@@ -1,4 +1,4 @@
-package com.example.workouttracker.trainings
+package com.example.workouttracker.workouts
 
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -9,7 +9,7 @@ import androidx.navigation.NavHostController
 import com.example.workouttracker.R
 
 @Composable
-fun TrainingScreen(navController: NavHostController, modifier: Modifier) {
+fun WorkoutsScreen(navController: NavHostController, modifier: Modifier) {
     FloatingActionButton(
         onClick = { onClick() },
     ) {
