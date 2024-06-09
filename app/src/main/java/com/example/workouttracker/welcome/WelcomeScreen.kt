@@ -1,6 +1,5 @@
 package com.example.workouttracker.welcome
 
-import android.content.SharedPreferences
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -29,15 +27,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.edit
-import androidx.navigation.NavController
 import com.example.workouttracker.R
 import com.example.workouttracker.WorkoutTrackerScreen
 import com.example.workouttracker.ui.theme.Black
@@ -93,7 +88,7 @@ fun WelcomeScreen(welcomeViewModel: WelcomeViewModel, modifier: Modifier = Modif
 
                 Spacer(modifier = Modifier.height(50.dp))
 
-                if (!firstRun) {
+                if (!firstRun && userInput.isNotEmpty()) {
                     Box(
                         modifier = Modifier
                             .background(Color.Black.copy(alpha = 0.85f))
@@ -121,13 +116,13 @@ fun WelcomeScreen(welcomeViewModel: WelcomeViewModel, modifier: Modifier = Modif
                     }
                 }
 
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(80.dp))
 
                 if (firstRun) {
                     Box(
                         modifier = Modifier
                             .background(Color.Black.copy(alpha = 0.85f))
-                            .padding(15.dp)
+                            .padding(10.dp)
                     ) {
                         OutlinedTextField(
                             value = userInput,
@@ -147,9 +142,18 @@ fun WelcomeScreen(welcomeViewModel: WelcomeViewModel, modifier: Modifier = Modif
                             )
                         )
                     }
+                    Box(modifier = Modifier
+                        .background(Color.Black.copy(alpha = 0.85f))
+                        .padding(10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "(Optional)\nThis goal will be your reminder why you started",
+                            color = DarkYellow
+                            )
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(40.dp))
 
                 Button(
                     onClick = {
