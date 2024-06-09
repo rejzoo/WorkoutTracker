@@ -9,12 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import com.example.workouttracker.ui.theme.Black
 
 @Composable
 fun SettingsScreen(navController: NavHostController, modifier: Modifier, navBackStackEntry: NavBackStackEntry?) {
     Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.Red,
+        modifier = Modifier.fillMaxSize().then(modifier),
+        color = Black,
     ) {
         Button(onClick = { navController.popBackStack() }
         ) {

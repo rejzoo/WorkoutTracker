@@ -1,5 +1,6 @@
 package com.example.workouttracker
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,14 +10,11 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,13 +30,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,7 +45,12 @@ import com.example.workouttracker.exercise.ExerciseScreen
 import com.example.workouttracker.home.HomeScreen
 import com.example.workouttracker.settings.SettingsScreen
 import com.example.workouttracker.statistics.StatisticsScreen
+import com.example.workouttracker.ui.theme.Black
+import com.example.workouttracker.ui.theme.DarkGray
+import com.example.workouttracker.ui.theme.DarkYellow
 import com.example.workouttracker.ui.theme.WorkoutTrackerTheme
+import com.example.workouttracker.welcome.WelcomeScreen
+import com.example.workouttracker.welcome.WelcomeViewModel
 import com.example.workouttracker.workouts.WorkoutsScreen
 import com.example.workouttracker.you.YouScreen
 
@@ -68,7 +70,7 @@ class Main : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        val mainViewModel: MainViewModel by viewModels()
+        val mainViewModel = MainViewModel()
 
         setContent {
             WorkoutTrackerTheme {
@@ -76,20 +78,23 @@ class Main : ComponentActivity() {
                 val navController = rememberNavController()
                 val currentBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = currentBackStackEntry?.destination?.route
-
+                val sharedPreferences = getSharedPreferences("user_goal", Context.MODE_PRIVATE)
+                val welcomeViewModel = WelcomeViewModel(navController, sharedPreferences)
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
                     Scaffold (
                         topBar = {
                             if (mainViewModel.showTopBar(currentRoute)) {
                                 TopAppBar(
-                                    title = { Text(currentRoute.toString()) },
+                                    title = { Text(currentRoute.toString(), color = DarkYellow,
+                                        fontWeight = FontWeight.Bold) },
                                     actions = {
                                         IconButton(onClick = {
                                                 mainViewModel.handleSettingsButton(currentRoute, navController)
                                             }
                                         ) {
-                                            Icon(Icons.Default.Settings, "Settings",)
+                                            Icon(Icons.Default.Settings, "Settings",
+                                                tint = DarkYellow)
                                         }
                                     }
                                 )
@@ -97,7 +102,9 @@ class Main : ComponentActivity() {
                         },
                         bottomBar = {
                             if (mainViewModel.showBottonBar(currentRoute)) {
-                                BottomAppBar {
+                                BottomAppBar (
+                                    containerColor = DarkGray
+                                ) {
                                     NavigationBarButtons(navController)
                                 }
                             }
@@ -105,7 +112,7 @@ class Main : ComponentActivity() {
                     ) { padding ->
                         NavHost(navController, WorkoutTrackerScreen.Welcome.name) {
                             composable(WorkoutTrackerScreen.Welcome.name) {
-                                WelcomeScreen(navController, Modifier.padding(padding))
+                                WelcomeScreen(welcomeViewModel, Modifier.padding(padding))
                             }
                             composable(WorkoutTrackerScreen.Settings.name) {
                                 SettingsScreen(navController, Modifier.padding(padding),
@@ -133,33 +140,6 @@ class Main : ComponentActivity() {
         }
     }
 }
-
-@Composable
-fun WelcomeScreen(navController: NavController, modifier: Modifier = Modifier) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.Blue
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Button(
-                onClick = { navController.navigate(WorkoutTrackerScreen.Home.name) },
-                modifier = Modifier
-                    .height(50.dp)
-                    .width(100.dp)
-            ) {
-                Text(
-                    text = "Launch",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-}
-
 @Composable
 fun NavigationBarButtons(navController: NavController) {
     var selectedItem by remember { mutableIntStateOf(0)}
@@ -172,17 +152,24 @@ fun NavigationBarButtons(navController: NavController) {
         WorkoutTrackerScreen.You
     )
 
-    NavigationBar {
+    NavigationBar(
+        containerColor = DarkGray
+    )
+    {
         navigationScreens.forEachIndexed { index, screen ->
-            NavigationBarItem(selected = selectedItem == index,
-                            onClick = { selectedItem = index
-                                        navController.navigate(screen.name) },
-                            icon = {
-                                Box(modifier = Modifier.size(24.dp))
-                                {
-                                    Icon(painterResource(screen.icon), screen.name) }
-                                },
-                            label = { Text(text = screen.name)}
+            NavigationBarItem(
+                selected = selectedItem == index,
+                onClick = { selectedItem = index
+                    navController.navigate(screen.name) },
+                icon = {
+                    Box(modifier = Modifier.size(24.dp)) {
+                        Icon(painterResource(screen.icon), screen.name,
+                            tint = if (selectedItem == index) DarkYellow else Color.White
+                        )
+                    }
+                },
+                label = { Text(text = screen.name,
+                    color = if (selectedItem == index) DarkYellow else Color.White)}
             )
         }
     }
