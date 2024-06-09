@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Workout Tracker</string>
-    <string name="Welcome" />
+    <string name="Welcome"/>
     <string name="Settings">Settings</string>
     <string name="Home">Home</string>
+    <string name="Trainings">Trainings</string>
 </resources>

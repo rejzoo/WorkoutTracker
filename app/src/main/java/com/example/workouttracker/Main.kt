@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,22 +46,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.workouttracker.home.HomeScreen
 import com.example.workouttracker.settings.SettingsScreen
+import com.example.workouttracker.trainings.TrainingScreen
 import com.example.workouttracker.ui.theme.WorkoutTrackerTheme
 
-enum class WorkoutTrackerScreen(@StringRes val title: Int) {
-    Welcome(title = R.string.Welcome),
-    Settings(title = R.string.Settings),
-    Home(title = R.string.Home)
+enum class WorkoutTrackerScreen(@StringRes val title: Int, @DrawableRes val icon: Int) {
+    Welcome(R.string.Welcome, R.drawable.dumbbell_solid),
+    Settings(R.string.Settings, R.drawable.gear_solid),
+    Home(R.string.Home, R.drawable.home),
+    Trainings(R.string.Trainings, R.drawable.dumbbell_solid)
 }
-
-/*
-Asi bude toto potreba
-enum class WorkoutTrackerScreen(val route: String, val iconResourceId: Int, val titleResourceId: Int) {
-    Home("home", R.drawable.ic_home, R.string.home_title),
-    Settings("settings", R.drawable.ic_settings, R.string.settings_title),
-    Welcome("welcome", R.drawable.ic_welcome, R.string.welcome_title)
-}
- */
 
 class Main : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -77,32 +71,26 @@ class Main : ComponentActivity() {
                 val currentBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = currentBackStackEntry?.destination?.route
 
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
                     Scaffold (
                         topBar = {
-                            if (currentRoute != WorkoutTrackerScreen.Welcome.name) {
+                            if (mainViewModel.showTopBar(currentRoute)) {
                                 TopAppBar(
                                     title = { Text(currentRoute.toString()) },
                                     actions = {
-                                        IconButton(
-                                            onClick = {
+                                        IconButton(onClick = {
                                                 mainViewModel.handleSettingsButton(currentRoute, navController)
                                             }
                                         ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Settings,
-                                                contentDescription = "Settings",
-                                            )
+                                            Icon(Icons.Default.Settings, "Settings",)
                                         }
                                     }
                                 )
                             }
                         },
                         bottomBar = {
-                            if (currentRoute != WorkoutTrackerScreen.Welcome.name) {
+                            if (mainViewModel.showBottonBar(currentRoute)) {
                                 BottomAppBar {
                                     NavigationBarButtons(navController)
                                 }
@@ -119,6 +107,9 @@ class Main : ComponentActivity() {
                             }
                             composable(WorkoutTrackerScreen.Home.name) {
                                 HomeScreen(navController, Modifier.padding(padding))
+                            }
+                            composable(WorkoutTrackerScreen.Trainings.name) {
+                                TrainingScreen(navController, Modifier.padding(padding))
                             }
                         }
                     }
@@ -159,20 +150,19 @@ fun NavigationBarButtons(navController: NavController) {
     var selectedItem by remember { mutableIntStateOf(0)}
 
     val navigationScreens = listOf(
-        WorkoutTrackerScreen.Home
+        WorkoutTrackerScreen.Home,
+        WorkoutTrackerScreen.Trainings
     )
 
     NavigationBar {
         navigationScreens.forEachIndexed { index, screen ->
             NavigationBarItem(selected = selectedItem == index,
-                            onClick = {
-                                selectedItem = index
-                                navController.navigate(screen.name)
-                                },
+                            onClick = { selectedItem = index
+                                        navController.navigate(screen.name) },
                             icon = {
                                 Box(modifier = Modifier.size(24.dp))
                                 {
-                                    Icon(painterResource(id = R.drawable.home), screen.name) }
+                                    Icon(painterResource(screen.icon), screen.name) }
                                 },
                             label = { Text(text = screen.name)}
             )

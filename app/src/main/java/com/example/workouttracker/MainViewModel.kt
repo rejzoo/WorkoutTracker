@@ -12,4 +12,23 @@ class MainViewModel : ViewModel() {
             navController.navigate(WorkoutTrackerScreen.Settings.name)
         }
     }
+
+    fun showTopBar(currentRoute: String?): Boolean
+    {
+        val screensWithoutTopBar = listOf(
+            WorkoutTrackerScreen.Welcome.name
+        )
+
+        return currentRoute !in screensWithoutTopBar
+    }
+
+    fun showBottonBar(currentRoute: String?): Boolean
+    {
+        val screensWithoutBottomBar = listOf(
+            WorkoutTrackerScreen.Welcome.name,
+            WorkoutTrackerScreen.Settings.name
+        )
+
+        return currentRoute !in screensWithoutBottomBar
+    }
 }
