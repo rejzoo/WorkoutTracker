@@ -52,7 +52,10 @@ import com.example.workouttracker.ui.theme.DarkYellow
 import com.example.workouttracker.ui.theme.WorkoutTrackerTheme
 import com.example.workouttracker.welcome.WelcomeScreen
 import com.example.workouttracker.welcome.WelcomeViewModel
+import com.example.workouttracker.workouts.CreateWorkoutScreen
+import com.example.workouttracker.workouts.CreateWorkoutViewModel
 import com.example.workouttracker.workouts.WorkoutsScreen
+import com.example.workouttracker.workouts.WorkoutsViewModel
 import com.example.workouttracker.you.YouScreen
 
 enum class WorkoutTrackerScreen(@StringRes val title: Int, @DrawableRes val icon: Int) {
@@ -62,11 +65,11 @@ enum class WorkoutTrackerScreen(@StringRes val title: Int, @DrawableRes val icon
     Workouts(R.string.Workouts, R.drawable.dumbbell_solid),
     You(R.string.You, R.drawable.user_solid),
     Exercise(R.string.Exercise, R.drawable.start_solid),
-    Statistics(R.string.Statistics, R.drawable.statistics_solid)
+    Statistics(R.string.Statistics, R.drawable.statistics_solid),
+    CreateWorkout(R.string.Create, R.drawable.dumbbell_solid)
 }
 
 class Main : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -80,8 +83,11 @@ class Main : ComponentActivity() {
                 val currentBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = currentBackStackEntry?.destination?.route
                 val sharedPreferences = getSharedPreferences("user_goal", Context.MODE_PRIVATE)
-                val welcomeViewModel = WelcomeViewModel(navController, sharedPreferences)
                 val backGround = painterResource(R.drawable.back_black)
+
+                val welcomeViewModel = WelcomeViewModel(navController, sharedPreferences)
+                val workoutsViewModel = WorkoutsViewModel(navController)
+                val createWorkoutViewModel = CreateWorkoutViewModel(navController)
 
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
@@ -112,7 +118,7 @@ class Main : ComponentActivity() {
                                 HomeScreen(navController, Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.Workouts.name) {
-                                WorkoutsScreen(navController, Modifier.padding(padding), backGround)
+                                WorkoutsScreen(workoutsViewModel, Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.You.name) {
                                 YouScreen(navController, Modifier.padding(padding), backGround)
@@ -123,6 +129,10 @@ class Main : ComponentActivity() {
                             composable(WorkoutTrackerScreen.Statistics.name) {
                                 StatisticsScreen(navController, Modifier.padding(padding), backGround)
                             }
+                            composable(WorkoutTrackerScreen.CreateWorkout.name)
+                            {
+                                CreateWorkoutScreen(navController, createWorkoutViewModel, Modifier.padding(padding))
+                            }
                         }
                     }
                 }
@@ -130,6 +140,7 @@ class Main : ComponentActivity() {
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(currentRoute: String?, mainViewModel: MainViewModel, navController: NavController) {
