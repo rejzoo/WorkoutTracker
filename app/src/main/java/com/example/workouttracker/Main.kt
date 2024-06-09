@@ -5,31 +5,27 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -39,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,7 +48,6 @@ import com.example.workouttracker.home.HomeScreen
 import com.example.workouttracker.settings.SettingsScreen
 import com.example.workouttracker.statistics.StatisticsScreen
 import com.example.workouttracker.ui.theme.Black
-import com.example.workouttracker.ui.theme.DarkGray
 import com.example.workouttracker.ui.theme.DarkYellow
 import com.example.workouttracker.ui.theme.WorkoutTrackerTheme
 import com.example.workouttracker.welcome.WelcomeScreen
@@ -87,6 +81,8 @@ class Main : ComponentActivity() {
                 val currentRoute = currentBackStackEntry?.destination?.route
                 val sharedPreferences = getSharedPreferences("user_goal", Context.MODE_PRIVATE)
                 val welcomeViewModel = WelcomeViewModel(navController, sharedPreferences)
+                val backGround = painterResource(R.drawable.back_black)
+
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
                     Scaffold (
@@ -98,7 +94,7 @@ class Main : ComponentActivity() {
                         bottomBar = {
                             if (mainViewModel.showBottonBar(currentRoute)) {
                                 BottomAppBar (
-                                    containerColor = DarkGray
+                                    containerColor = Black
                                 ) {
                                     NavigationBarButtons(navController)
                                 }
@@ -110,23 +106,22 @@ class Main : ComponentActivity() {
                                 WelcomeScreen(welcomeViewModel, Modifier.padding(padding))
                             }
                             composable(WorkoutTrackerScreen.Settings.name) {
-                                SettingsScreen(navController, Modifier.padding(padding),
-                                                navController.currentBackStackEntry)
+                                SettingsScreen(navController, Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.Home.name) {
-                                HomeScreen(navController, Modifier.padding(padding))
+                                HomeScreen(navController, Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.Workouts.name) {
-                                WorkoutsScreen(navController, Modifier.padding(padding))
+                                WorkoutsScreen(navController, Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.You.name) {
-                                YouScreen(navController, Modifier.padding(padding))
+                                YouScreen(navController, Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.Exercise.name) {
-                                ExerciseScreen(navController, Modifier.padding(padding))
+                                ExerciseScreen(navController, Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.Statistics.name) {
-                                StatisticsScreen(navController, Modifier.padding(padding))
+                                StatisticsScreen(navController, Modifier.padding(padding), backGround)
                             }
                         }
                     }
@@ -176,7 +171,10 @@ fun TopBar(currentRoute: String?, mainViewModel: MainViewModel, navController: N
                     )
                 }
             }
-        }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Black
+        )
     )
 }
 
@@ -193,7 +191,7 @@ fun NavigationBarButtons(navController: NavController) {
     )
 
     NavigationBar(
-        containerColor = DarkGray
+        containerColor = Black
     ) {
         Row(
             modifier = Modifier
