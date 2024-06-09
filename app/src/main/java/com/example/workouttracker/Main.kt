@@ -8,8 +8,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -30,12 +35,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -85,19 +92,7 @@ class Main : ComponentActivity() {
                     Scaffold (
                         topBar = {
                             if (mainViewModel.showTopBar(currentRoute)) {
-                                TopAppBar(
-                                    title = { Text(currentRoute.toString(), color = DarkYellow,
-                                        fontWeight = FontWeight.Bold) },
-                                    actions = {
-                                        IconButton(onClick = {
-                                                mainViewModel.handleSettingsButton(currentRoute, navController)
-                                            }
-                                        ) {
-                                            Icon(Icons.Default.Settings, "Settings",
-                                                tint = DarkYellow)
-                                        }
-                                    }
-                                )
+                                TopBar(currentRoute, mainViewModel, navController)
                             }
                         },
                         bottomBar = {
@@ -140,9 +135,54 @@ class Main : ComponentActivity() {
         }
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBar(currentRoute: String?, mainViewModel: MainViewModel, navController: NavController) {
+    TopAppBar(
+        title = {
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = currentRoute.toString(),
+                        color = DarkYellow,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 25.sp
+                    )
+                    IconButton(onClick = { mainViewModel.handleSettingsButton(currentRoute, navController) }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.gear_solid),
+                            contentDescription = "Settings",
+                            tint = DarkYellow,
+                            modifier = Modifier.size(27.dp)
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 7.dp),
+                    horizontalArrangement = Arrangement.Absolute.Left,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = mainViewModel.getDescriptionFromRoute(currentRoute),
+                        color = DarkYellow,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        }
+    )
+}
+
 @Composable
 fun NavigationBarButtons(navController: NavController) {
-    var selectedItem by remember { mutableIntStateOf(0)}
+    var selectedItem by remember { mutableIntStateOf(0) }
 
     val navigationScreens = listOf(
         WorkoutTrackerScreen.Home,
@@ -154,23 +194,42 @@ fun NavigationBarButtons(navController: NavController) {
 
     NavigationBar(
         containerColor = DarkGray
-    )
-    {
-        navigationScreens.forEachIndexed { index, screen ->
-            NavigationBarItem(
-                selected = selectedItem == index,
-                onClick = { selectedItem = index
-                    navController.navigate(screen.name) },
-                icon = {
-                    Box(modifier = Modifier.size(24.dp)) {
-                        Icon(painterResource(screen.icon), screen.name,
-                            tint = if (selectedItem == index) DarkYellow else Color.White
-                        )
-                    }
-                },
-                label = { Text(text = screen.name,
-                    color = if (selectedItem == index) DarkYellow else Color.White)}
-            )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            navigationScreens.forEachIndexed { index, screen ->
+                val isSelected = selectedItem == index
+                val iconTint = if (isSelected) DarkYellow else Color.White
+                val textColor = if (isSelected) DarkYellow else Color.White
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable {
+                            selectedItem = index
+                            navController.navigate(screen.name)
+                        }
+                        .padding(vertical = 8.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(screen.icon),
+                        contentDescription = screen.name,
+                        tint = iconTint,
+                        modifier = Modifier.size(27.dp)
+                    )
+                    Text(
+                        text = screen.name,
+                        color = textColor,
+                        fontSize = 14.sp
+                    )
+                }
+            }
         }
     }
 }
