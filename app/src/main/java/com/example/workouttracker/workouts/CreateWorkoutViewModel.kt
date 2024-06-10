@@ -110,11 +110,10 @@ class CreateWorkoutViewModel(private val database: WorkoutDatabase) : ViewModel(
         }
     }
 
-    suspend fun deleteExercise(exercise: Exercise?) {
+    suspend fun deleteExercise(id: Int) {
         withContext(Dispatchers.IO) {
-            if (exercise != null) {
-                database.workoutDao().deleteExercise(exercise.id)
-            }
+            //println("ITEM4: " + id)
+            database.workoutDao().deleteExercise(id)
         }
     }
 }
