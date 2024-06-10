@@ -2,8 +2,9 @@ package com.example.workouttracker.workouts
 
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import com.example.workouttracker.data.WorkoutDatabase
 
-class CreateWorkoutViewModel(navController: NavController) : ViewModel() {
+class CreateWorkoutViewModel() : ViewModel() {
     val typeOfExercise = listOf("Push", "Pull", "Legs")
 
     val exercisesPush = listOf("Dumbbell bench press", "Lateral raises", "Incline dumbbell press",

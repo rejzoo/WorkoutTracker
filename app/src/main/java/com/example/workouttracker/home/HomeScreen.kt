@@ -16,7 +16,7 @@ import com.example.workouttracker.R
 import com.example.workouttracker.ui.theme.Black
 
 @Composable
-fun HomeScreen(navController: NavHostController, modifier: Modifier, painter: Painter) {
+fun HomeScreen(modifier: Modifier, painter: Painter) {
     Surface(
         modifier = Modifier.fillMaxSize().then(modifier)
     ) {

@@ -11,7 +11,7 @@ import androidx.navigation.NavHostController
 import com.example.workouttracker.ui.theme.Black
 
 @Composable
-fun ExerciseScreen(navController: NavHostController, modifier: Modifier, painter: Painter) {
+fun ExerciseScreen(modifier: Modifier, painter: Painter) {
     Surface(
         modifier = Modifier.fillMaxSize().then(modifier)
     ) {

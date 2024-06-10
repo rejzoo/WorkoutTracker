@@ -52,7 +52,7 @@ import com.example.workouttracker.ui.theme.DarkYellow
 import androidx.compose.runtime.saveable.rememberSaveable
 
 @Composable
-fun CreateWorkoutScreen(navController: NavHostController, workoutView: CreateWorkoutViewModel, modifier: Modifier) {
+fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutViewModel, modifier: Modifier) {
     var selectedType by rememberSaveable { mutableStateOf("") }
     var selectedExercise by rememberSaveable { mutableStateOf("") }
     var sets by rememberSaveable { mutableIntStateOf(0) }
@@ -120,7 +120,7 @@ fun CreateWorkoutScreen(navController: NavHostController, workoutView: CreateWor
 
             Row {
                 Button(
-                    onClick = { navController.popBackStack() },
+                    onClick = { popBackStack() },
                     modifier = Modifier.height(50.dp),
                     colors = ButtonDefaults.buttonColors(contentColor = Black, containerColor = DarkYellow),
                     shape = RoundedCornerShape(12.dp)
@@ -137,7 +137,7 @@ fun CreateWorkoutScreen(navController: NavHostController, workoutView: CreateWor
                 Button(
                     onClick = {
                         //workoutView.addExercise(selectedExercise, sets, reps, weight)
-                        navController.popBackStack()
+                        popBackStack()
                     },
                     modifier = Modifier.height(50.dp),
                     colors = ButtonDefaults.buttonColors(contentColor = Black, containerColor = DarkYellow),

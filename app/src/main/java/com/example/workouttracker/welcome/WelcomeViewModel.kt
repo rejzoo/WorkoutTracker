@@ -7,8 +7,7 @@ import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 
-class WelcomeViewModel(pNavController: NavController, pSharedPreferences: SharedPreferences) : ViewModel() {
-    var navController = pNavController
+class WelcomeViewModel(pSharedPreferences: SharedPreferences) : ViewModel() {
     private var sharedPreferences = pSharedPreferences
     private val userInput = mutableStateOf(sharedPreferences.getString("user_goal", "") ?: "")
     private val inputDate = mutableLongStateOf(sharedPreferences.getLong("input_date", 0L))

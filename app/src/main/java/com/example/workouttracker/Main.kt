@@ -43,6 +43,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.workouttracker.data.WorkoutDatabase
 import com.example.workouttracker.exercise.ExerciseScreen
 import com.example.workouttracker.home.HomeScreen
 import com.example.workouttracker.settings.SettingsScreen
@@ -74,7 +75,7 @@ class Main : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        val mainViewModel = MainViewModel()
+        val database = WorkoutDatabase.getDatabase(this)
 
         setContent {
             WorkoutTrackerTheme {
@@ -85,9 +86,10 @@ class Main : ComponentActivity() {
                 val sharedPreferences = getSharedPreferences("user_goal", Context.MODE_PRIVATE)
                 val backGround = painterResource(R.drawable.back_black)
 
-                val welcomeViewModel = WelcomeViewModel(navController, sharedPreferences)
-                val workoutsViewModel = WorkoutsViewModel(navController)
-                val createWorkoutViewModel = CreateWorkoutViewModel(navController)
+                val welcomeViewModel = WelcomeViewModel(sharedPreferences)
+                val mainViewModel = MainViewModel()
+                val workoutsViewModel = WorkoutsViewModel()
+                val createWorkoutViewModel = CreateWorkoutViewModel()
 
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
@@ -98,7 +100,7 @@ class Main : ComponentActivity() {
                             }
                         },
                         bottomBar = {
-                            if (mainViewModel.showBottonBar(currentRoute)) {
+                            if (mainViewModel.showBottomBar(currentRoute)) {
                                 BottomAppBar (
                                     containerColor = Black
                                 ) {
@@ -109,29 +111,33 @@ class Main : ComponentActivity() {
                     ) { padding ->
                         NavHost(navController, WorkoutTrackerScreen.Welcome.name) {
                             composable(WorkoutTrackerScreen.Welcome.name) {
-                                WelcomeScreen(welcomeViewModel, Modifier.padding(padding))
+                                WelcomeScreen({ navController.navigate(WorkoutTrackerScreen.Home.name) },
+                                    welcomeViewModel, Modifier.padding(padding))
                             }
                             composable(WorkoutTrackerScreen.Settings.name) {
-                                SettingsScreen(navController, Modifier.padding(padding), backGround)
+                                SettingsScreen({ navController.popBackStack() },
+                                    Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.Home.name) {
-                                HomeScreen(navController, Modifier.padding(padding), backGround)
+                                HomeScreen(Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.Workouts.name) {
-                                WorkoutsScreen(workoutsViewModel, Modifier.padding(padding), backGround)
+                                WorkoutsScreen({ navController.navigate(WorkoutTrackerScreen.CreateWorkout.name) },
+                                    Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.You.name) {
-                                YouScreen(navController, Modifier.padding(padding), backGround)
+                                YouScreen(Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.Exercise.name) {
-                                ExerciseScreen(navController, Modifier.padding(padding), backGround)
+                                ExerciseScreen(Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.Statistics.name) {
-                                StatisticsScreen(navController, Modifier.padding(padding), backGround)
+                                StatisticsScreen(Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.CreateWorkout.name)
                             {
-                                CreateWorkoutScreen(navController, createWorkoutViewModel, Modifier.padding(padding))
+                                CreateWorkoutScreen({ navController.popBackStack() },
+                                    createWorkoutViewModel, Modifier.padding(padding))
                             }
                         }
                     }

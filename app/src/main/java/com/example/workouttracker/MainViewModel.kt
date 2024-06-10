@@ -2,7 +2,6 @@ package com.example.workouttracker
 
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 
 class MainViewModel : ViewModel() {
     fun handleSettingsButton(currentRoute: String?, navController: NavController)
@@ -23,7 +22,7 @@ class MainViewModel : ViewModel() {
         return currentRoute !in screensWithoutTopBar
     }
 
-    fun showBottonBar(currentRoute: String?): Boolean
+    fun showBottomBar(currentRoute: String?): Boolean
     {
         val screensWithoutBottomBar = listOf(
             WorkoutTrackerScreen.Welcome.name,
@@ -38,7 +37,7 @@ class MainViewModel : ViewModel() {
         return when (route) {
             "Home" -> "Home Screen"
             "Workouts" -> "Plan or create workouts"
-            "Statistics" -> "Statistics of your progess"
+            "Statistics" -> "Statistics of your progress"
             "Exercise" -> "Start workout"
             "Settings" -> "Change settings"
             "You" -> "About you"

@@ -43,7 +43,7 @@ import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WelcomeScreen(welcomeViewModel: WelcomeViewModel, modifier: Modifier = Modifier) {
+fun WelcomeScreen(navigate: () -> Unit, welcomeViewModel: WelcomeViewModel, modifier: Modifier = Modifier) {
 
     var userInput by rememberSaveable { mutableStateOf(welcomeViewModel.getUserInput()) }
     val dateInput = welcomeViewModel.getInputDate()
@@ -53,7 +53,7 @@ fun WelcomeScreen(welcomeViewModel: WelcomeViewModel, modifier: Modifier = Modif
         modifier = Modifier
             .fillMaxSize()
             .then(modifier),
-            color = Black
+        color = Black
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -150,7 +150,7 @@ fun WelcomeScreen(welcomeViewModel: WelcomeViewModel, modifier: Modifier = Modif
                     ) {
                         Text(text = "(Optional)\nThis goal will be your reminder why you started",
                             color = DarkYellow
-                            )
+                        )
                     }
                 }
 
@@ -159,7 +159,7 @@ fun WelcomeScreen(welcomeViewModel: WelcomeViewModel, modifier: Modifier = Modif
                 Button(
                     onClick = {
                         welcomeViewModel.updateUserInput(userInput)
-                        welcomeViewModel.navController.navigate(WorkoutTrackerScreen.Home.name)
+                        navigate()
                     },
                     modifier = Modifier.height(50.dp),
                     colors = ButtonDefaults.buttonColors(contentColor = Black, containerColor = DarkYellow),

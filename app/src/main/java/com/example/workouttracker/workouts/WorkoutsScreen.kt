@@ -22,7 +22,8 @@ import com.example.workouttracker.ui.theme.Black
 import com.example.workouttracker.ui.theme.DarkYellow
 
 @Composable
-fun WorkoutsScreen(workoutView: WorkoutsViewModel, modifier: Modifier, painter: Painter) {
+fun WorkoutsScreen(navigateToCreateWorkoutScreen: () -> Unit,
+                   modifier: Modifier, painter: Painter) {
 
     Surface (
         modifier = modifier
@@ -39,7 +40,7 @@ fun WorkoutsScreen(workoutView: WorkoutsViewModel, modifier: Modifier, painter: 
             )
 
             FloatingActionButton(
-                onClick = { workoutView.navController.navigate(WorkoutTrackerScreen.CreateWorkout.name) },
+                onClick = { navigateToCreateWorkoutScreen() },
                 shape = ShapeDefaults.Medium,
                 containerColor = DarkYellow,
                 modifier = Modifier

@@ -11,7 +11,7 @@ import androidx.navigation.NavHostController
 import com.example.workouttracker.ui.theme.Black
 
 @Composable
-fun StatisticsScreen(navController: NavHostController, modifier: Modifier, painter: Painter) {
+fun StatisticsScreen(modifier: Modifier, painter: Painter) {
     Surface(
         modifier = Modifier.fillMaxSize().then(modifier)
     ) {

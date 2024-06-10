@@ -30,7 +30,7 @@ import com.example.workouttracker.ui.theme.Black
 import com.example.workouttracker.ui.theme.DarkYellow
 
 @Composable
-fun SettingsScreen(navController: NavHostController, modifier: Modifier,
+fun SettingsScreen(popBackStack: () -> Unit, modifier: Modifier,
                    painter: Painter) {
     Surface(
         modifier = Modifier.fillMaxSize().then(modifier),
@@ -55,7 +55,7 @@ fun SettingsScreen(navController: NavHostController, modifier: Modifier,
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(onClick = { navController.popBackStack() },
+                Button(onClick = { popBackStack() },
                     modifier = Modifier.height(50.dp),
                     colors = ButtonDefaults.buttonColors(contentColor = Black, containerColor = DarkYellow),
                     shape = RoundedCornerShape(12.dp)
@@ -66,7 +66,7 @@ fun SettingsScreen(navController: NavHostController, modifier: Modifier,
                         fontWeight = FontWeight.Bold
                     )
                 }
-                Button(onClick = { navController.popBackStack() },
+                Button(onClick = { popBackStack() },
                     modifier = Modifier.height(50.dp),
                     colors = ButtonDefaults.buttonColors(contentColor = Black, containerColor = DarkYellow),
                     shape = RoundedCornerShape(12.dp)
