@@ -1,46 +1,20 @@
 package com.example.workouttracker.workouts
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import com.example.workouttracker.data.DatabaseViewModel
 import com.example.workouttracker.data.Exercise
 import com.example.workouttracker.data.Workout
 import com.example.workouttracker.data.WorkoutDatabase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class WorkoutsViewModel(private val database: WorkoutDatabase) : ViewModel() {
+class WorkoutsViewModel(private val database: WorkoutDatabase,
+                        databaseViewModel: DatabaseViewModel) : ViewModel() {
 
+    val workouts: LiveData<List<Workout>> = databaseViewModel.workouts
 
-    val workouts: LiveData<List<Workout>> by lazy {
-        MutableLiveData<List<Workout>>().also { liveData ->
-            viewModelScope.launch {
-                liveData.value = getAllWorkouts()
-            }
-        }
-    }
-
-    val exercises: LiveData<List<Exercise>> by lazy {
-        MutableLiveData<List<Exercise>>().also { liveData ->
-            viewModelScope.launch {
-                liveData.value = getAllExercises()
-            }
-        }
-    }
-
-    private suspend fun getAllWorkouts(): List<Workout> {
-        return withContext(Dispatchers.IO) {
-            database.workoutDao().getAllWorkouts()
-        }
-    }
-
-    private suspend fun getAllExercises(): List<Exercise> {
-        return withContext(Dispatchers.IO) {
-            database.workoutDao().getAllExercises()
-        }
-    }
+    val exercises: LiveData<List<Exercise>> = databaseViewModel.exercises
 
     suspend fun createNewWorkout()
     {

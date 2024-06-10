@@ -43,8 +43,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.workouttracker.data.DatabaseViewModel
 import com.example.workouttracker.data.WorkoutDatabase
 import com.example.workouttracker.exercise.ExerciseScreen
+import com.example.workouttracker.exercise.ExerciseViewModel
 import com.example.workouttracker.home.HomeScreen
 import com.example.workouttracker.settings.SettingsScreen
 import com.example.workouttracker.statistics.StatisticsScreen
@@ -58,10 +60,6 @@ import com.example.workouttracker.workouts.CreateWorkoutViewModel
 import com.example.workouttracker.workouts.WorkoutsScreen
 import com.example.workouttracker.workouts.WorkoutsViewModel
 import com.example.workouttracker.you.YouScreen
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 enum class WorkoutTrackerScreen(@StringRes val title: Int, @DrawableRes val icon: Int) {
     Welcome(R.string.Welcome, R.drawable.dumbbell_solid),
@@ -75,7 +73,6 @@ enum class WorkoutTrackerScreen(@StringRes val title: Int, @DrawableRes val icon
 }
 
 class Main : ComponentActivity() {
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -91,10 +88,12 @@ class Main : ComponentActivity() {
                 val sharedPreferences = getSharedPreferences("user_goal", Context.MODE_PRIVATE)
                 val backGround = painterResource(R.drawable.back_black)
 
+                val databaseViewModel = DatabaseViewModel(database)
                 val welcomeViewModel = WelcomeViewModel(sharedPreferences)
                 val mainViewModel = MainViewModel()
-                val workoutsViewModel = WorkoutsViewModel(database)
+                val workoutsViewModel = WorkoutsViewModel(database, databaseViewModel)
                 val createWorkoutViewModel = CreateWorkoutViewModel(database)
+                val exerciseViewModel = ExerciseViewModel(database, databaseViewModel)
 
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
@@ -134,7 +133,7 @@ class Main : ComponentActivity() {
                                 YouScreen(Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.Exercise.name) {
-                                ExerciseScreen(Modifier.padding(padding), backGround)
+                                ExerciseScreen(Modifier.padding(padding), backGround, exerciseViewModel)
                             }
                             composable(WorkoutTrackerScreen.Statistics.name) {
                                 StatisticsScreen(Modifier.padding(padding), backGround)
