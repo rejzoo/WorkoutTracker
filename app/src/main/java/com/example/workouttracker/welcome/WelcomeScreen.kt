@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +45,7 @@ import java.util.Date
 @Composable
 fun WelcomeScreen(welcomeViewModel: WelcomeViewModel, modifier: Modifier = Modifier) {
 
-    var userInput by remember { mutableStateOf(welcomeViewModel.getUserInput()) }
+    var userInput by rememberSaveable { mutableStateOf(welcomeViewModel.getUserInput()) }
     val dateInput = welcomeViewModel.getInputDate()
     val firstRun = welcomeViewModel.getFirstRun()
 
