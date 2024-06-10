@@ -42,6 +42,7 @@ class MainViewModel : ViewModel() {
             "Exercise" -> "Start workout"
             "Settings" -> "Change settings"
             "You" -> "About you"
+            "CreateWorkout" -> "Add exercise"
             else -> ""
         }
     }

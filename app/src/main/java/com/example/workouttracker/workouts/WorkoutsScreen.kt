@@ -1,10 +1,10 @@
 package com.example.workouttracker.workouts
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ShapeDefaults
@@ -18,10 +18,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.workouttracker.R
-import com.example.workouttracker.WorkoutTrackerScreen
 import com.example.workouttracker.ui.theme.Black
 import com.example.workouttracker.ui.theme.DarkYellow
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.*
 
 @Composable
 fun WorkoutsScreen(navigateToCreateWorkoutScreen: () -> Unit,
@@ -32,32 +32,42 @@ fun WorkoutsScreen(navigateToCreateWorkoutScreen: () -> Unit,
     Surface (
         modifier = modifier
     ){
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
+        Image(
+            painter = painter,
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds,
+        )
+        LazyColumn(
+            modifier = Modifier.padding(16.dp)
         ) {
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillBounds,
-            )
+            item {
 
+            }
+        }
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomEnd
+        ) {
             FloatingActionButton(
                 onClick = {
                     workoutsViewScope.launch {
                         navigateToCreateWorkoutScreen()
-                        workoutsViewModel.createNewWorkout() } },
+                        workoutsViewModel.createNewWorkout()
+                    }
+                },
                 shape = ShapeDefaults.Medium,
                 containerColor = DarkYellow,
                 modifier = Modifier
                     .padding(16.dp)
                     .size(85.dp)
-                    .align(Alignment.BottomEnd)
                     .padding(16.dp)
             ) {
-                Icon(painterResource(R.drawable.plus_solid), "Add button.",
-                    tint = Black)
+                Icon(
+                    painterResource(R.drawable.plus_solid), "Add button.",
+                    tint = Black
+                )
             }
         }
     }

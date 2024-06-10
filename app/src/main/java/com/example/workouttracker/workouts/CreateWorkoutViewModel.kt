@@ -116,4 +116,10 @@ class CreateWorkoutViewModel(private val database: WorkoutDatabase) : ViewModel(
             database.workoutDao().deleteExercise(id)
         }
     }
+
+    suspend fun updateWorkoutName(newName: String) {
+        withContext(Dispatchers.IO) {
+            database.workoutDao().updateWorkoutName(getActualWorkoutId(), newName)
+        }
+    }
 }

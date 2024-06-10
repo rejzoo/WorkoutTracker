@@ -65,6 +65,8 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
     var sets by rememberSaveable { mutableIntStateOf(0) }
     var reps by rememberSaveable { mutableIntStateOf(0) }
     var weight by rememberSaveable { mutableDoubleStateOf(0.0) }
+    var weightText by rememberSaveable { mutableStateOf("") }
+    var nameOfWorkout by rememberSaveable { mutableStateOf("") }
     var exercises by rememberSaveable { mutableStateOf<List<Exercise>>(emptyList()) }
     var selectedExerciseIndex by rememberSaveable { mutableStateOf<Int?>(null) }
     var selectedExerciseCard by rememberSaveable { mutableStateOf<Exercise?>(null) }
@@ -84,24 +86,31 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
             .then(modifier),
         color = DarkGray
     ) {
-
         LazyColumn(
             modifier = Modifier.padding(16.dp)
         ) {
             item {
-                Text(
-                    "Add Exercise",
-                    fontSize = 20.sp,
-                    color = DarkYellow
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
                 ExerciseDropdown(selectedType, selectedExercise,
                     { selectedType = it }, { selectedExercise = it }, workoutView
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Absolute.Left
+                ) {
+                    OutlinedTextField(
+                        value = nameOfWorkout,
+                        onValueChange = { nameOfWorkout = it },
+                        label = { Text("Workout name", color = DarkYellow) },
+                        modifier = Modifier
+                            .width(150.dp)
+                            .height(60.dp),
+                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -125,13 +134,19 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
                 Spacer(modifier = Modifier.height(25.dp))
 
                 OutlinedTextField(
-                    value = TextFieldValue("$weight"),
-                    onValueChange = { weight = it.text.toDoubleOrNull() ?: 0.0 },
+                    value = weightText,
+                    onValueChange = {
+                        weightText = it
+                        val number = it.toDoubleOrNull()
+                        if (number != null) {
+                            weight = number
+                        }
+                    },
                     label = { Text("Weight (KG)", color = DarkYellow) },
                     modifier = Modifier
                         .width(150.dp)
-                        .height(70.dp),
-                    textStyle = TextStyle(color = Color.White, fontSize = 25.sp),
+                        .height(60.dp),
+                    textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
 
@@ -228,6 +243,7 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
                         onClick = {
                             println("SIZE " + exercises.size)
                             CoroutineScope(Dispatchers.IO).launch {
+                                workoutView.updateWorkoutName(nameOfWorkout)
                                 if (exercises.isEmpty()) {
                                     workoutView.deleteCurrentWorkout()
                                 }
