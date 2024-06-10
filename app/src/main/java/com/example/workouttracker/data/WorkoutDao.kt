@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
-import androidx.room.Update
 
 @Dao
 interface WorkoutDao {
@@ -35,4 +34,10 @@ interface WorkoutDao {
 
     @Query("UPDATE Workouts SET name = :newName WHERE id = :id")
     suspend fun updateWorkoutName(id: Int, newName: String)
+
+    @Query("SELECT * FROM Workouts")
+    suspend fun getAllWorkouts(): List<Workout>
+
+    @Query("SELECT * FROM Exercises")
+    suspend fun getAllExercises(): List<Exercise>
 }

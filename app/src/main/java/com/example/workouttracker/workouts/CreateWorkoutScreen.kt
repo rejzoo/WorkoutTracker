@@ -38,7 +38,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -105,10 +104,9 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
                         onValueChange = { nameOfWorkout = it },
                         label = { Text("Workout name", color = DarkYellow) },
                         modifier = Modifier
-                            .width(150.dp)
+                            .width(240.dp)
                             .height(60.dp),
                         textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                 }
 

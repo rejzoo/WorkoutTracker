@@ -9,7 +9,7 @@ import java.util.Date
 data class Workout(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val name: String = ""
+    val name: String = "Workout"
 )
 
 class DateConverter {
