@@ -37,6 +37,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -61,16 +62,18 @@ import com.example.workouttracker.ui.theme.DarkGray
 import com.example.workouttracker.ui.theme.DarkYellow
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.example.workouttracker.data.Exercise
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
 fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutViewModel, modifier: Modifier) {
+
     var selectedType by rememberSaveable { mutableStateOf("") }
     var selectedExercise by rememberSaveable { mutableStateOf("") }
     var sets by rememberSaveable { mutableIntStateOf(0) }
     var reps by rememberSaveable { mutableIntStateOf(0) }
     var weight by rememberSaveable { mutableDoubleStateOf(0.0) }
-    val workoutViewScope = rememberCoroutineScope()
     var exercises by rememberSaveable { mutableStateOf<List<Exercise>>(emptyList()) }
     var selectedExerciseIndex by rememberSaveable { mutableStateOf<Int?>(null) }
     var selectedExerciseCard by rememberSaveable { mutableStateOf<Exercise?>(null) }
@@ -101,7 +104,8 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
             Spacer(modifier = Modifier.height(10.dp))
 
             ExerciseDropdown(selectedType, selectedExercise,
-                { selectedType = it }, { selectedExercise = it }, workoutView
+                { selectedType = it }, { selectedExercise = it }
+                , workoutView
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -144,10 +148,10 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
             Row {
                 Button(
                     onClick = {
-                        workoutViewScope.launch {
+                        CoroutineScope(Dispatchers.IO).launch {
                             workoutView.deleteCurrentWorkout()
-                            popBackStack()
                         }
+                        popBackStack()
                     },
                     modifier = Modifier.height(50.dp),
                     colors = ButtonDefaults.buttonColors(contentColor = Black, containerColor = DarkYellow),
@@ -165,12 +169,11 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
                 if (selectedExerciseIndex == null) {
                     Button(
                         onClick = {
-                            workoutViewScope.launch {
-                                if (!workoutView.addExercise(selectedExercise, sets, reps, weight))
-                                    showDialog.value = true
-                                else
-                                    resetInput()
+                            CoroutineScope(Dispatchers.IO).launch {
+                                showDialog.value = !workoutView.addExercise(selectedExercise, sets, reps, weight)
                                 exercises = workoutView.getListOfAllExercisesForCurrentWorkout()
+
+                                resetInput()
                             }
                         },
                         modifier = Modifier.height(50.dp),
@@ -189,10 +192,14 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
                 } else {
                     Button(
                         onClick = {
-                            workoutViewScope.launch {
-                                exercises = exercises.filterIndexed { index, _ -> index != selectedExerciseIndex }
-                                workoutView.deleteExercise(selectedExerciseCard)
+                            if (selectedExerciseCard != null) {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    workoutView.deleteExercise(selectedExerciseCard)
+                                }
+                                exercises =
+                                    exercises.filterIndexed { index, _ -> index != selectedExerciseIndex }
                                 selectedExerciseIndex = null
+                                selectedExerciseCard = null
                             }
                         },
                         modifier = Modifier.height(50.dp),
@@ -212,12 +219,13 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
 
                 Button(
                     onClick = {
-                        workoutViewScope.launch {
-                            popBackStack()
-                            if (workoutView.workoutEmpty()) {
+                        println("SIZE " +exercises.size)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            if (exercises.isEmpty()) {
                                 workoutView.deleteCurrentWorkout()
                             }
                         }
+                        popBackStack()
                     },
                     modifier = Modifier.height(50.dp),
                     colors = ButtonDefaults.buttonColors(contentColor = Black, containerColor = DarkYellow),

@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [Workout::class, Exercise::class], version = 2)
+@Database(entities = [Workout::class, Exercise::class], version = 1)
 @TypeConverters(DateConverter::class)
 abstract class WorkoutDatabase : RoomDatabase() {
     abstract fun workoutDao(): WorkoutDao

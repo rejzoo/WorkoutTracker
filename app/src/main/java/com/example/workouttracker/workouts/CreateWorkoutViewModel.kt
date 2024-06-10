@@ -1,14 +1,20 @@
 package com.example.workouttracker.workouts
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.navigation.NavController
 import com.example.workouttracker.data.Exercise
 import com.example.workouttracker.data.WorkoutDatabase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 
 class CreateWorkoutViewModel(private val database: WorkoutDatabase) : ViewModel() {
-    val typeOfExercise = listOf("Push", "Pull", "Legs")
 
     private val exercisesPush = listOf("Dumbbell bench press", "Lateral raises", "Incline dumbbell press",
         "Dip", "Overhead press", "Pushups", "Tricep pushdowns", "Chest fly",
@@ -36,6 +42,11 @@ class CreateWorkoutViewModel(private val database: WorkoutDatabase) : ViewModel(
         "Legs" to exercisesLegs
     )
 
+    val typeOfExercise = listOf(
+        "Push",
+        "Pull",
+        "Legs"
+    )
     suspend fun addExercise(exercise: String, sets: Int, reps: Int, weight: Double): Boolean
     {
         if (exercise.isEmpty() || sets == 0 || reps == 0) {
@@ -54,6 +65,19 @@ class CreateWorkoutViewModel(private val database: WorkoutDatabase) : ViewModel(
         )
         database.workoutDao().insertExercise(newExercise)
         return true
+    }
+
+    suspend fun createExercise(exercise: String, sets: Int, reps: Int, weight: Double): Exercise {
+        return Exercise(
+            workoutId = getNextWorkoutId(),
+            name = exercise,
+            goalReps = reps,
+            goalSets = sets,
+            goalWeight = weight,
+            actualReps = 0,
+            actualSets = 0,
+            actualWeight = 0.0
+        )
     }
 
     private suspend fun getNextWorkoutId(): Int {
@@ -76,13 +100,6 @@ class CreateWorkoutViewModel(private val database: WorkoutDatabase) : ViewModel(
             if (id > 0) {
                 database.workoutDao().deleteWorkout(id)
             }
-        }
-    }
-
-    suspend fun workoutEmpty(): Boolean {
-        return withContext(Dispatchers.IO) {
-            val number = database.workoutDao().getNumberOfExercisesForWorkout(getActualWorkoutId())
-            number == 0
         }
     }
 
