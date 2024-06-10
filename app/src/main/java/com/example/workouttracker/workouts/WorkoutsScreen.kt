@@ -10,6 +10,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -20,10 +21,13 @@ import com.example.workouttracker.R
 import com.example.workouttracker.WorkoutTrackerScreen
 import com.example.workouttracker.ui.theme.Black
 import com.example.workouttracker.ui.theme.DarkYellow
+import kotlinx.coroutines.launch
 
 @Composable
 fun WorkoutsScreen(navigateToCreateWorkoutScreen: () -> Unit,
-                   modifier: Modifier, painter: Painter) {
+                   modifier: Modifier, painter: Painter,
+                   workoutsViewModel: WorkoutsViewModel) {
+    val workoutsViewScope = rememberCoroutineScope()
 
     Surface (
         modifier = modifier
@@ -40,7 +44,10 @@ fun WorkoutsScreen(navigateToCreateWorkoutScreen: () -> Unit,
             )
 
             FloatingActionButton(
-                onClick = { navigateToCreateWorkoutScreen() },
+                onClick = {
+                    workoutsViewScope.launch {
+                        navigateToCreateWorkoutScreen()
+                        workoutsViewModel.createNewWorkout() } },
                 shape = ShapeDefaults.Medium,
                 containerColor = DarkYellow,
                 modifier = Modifier

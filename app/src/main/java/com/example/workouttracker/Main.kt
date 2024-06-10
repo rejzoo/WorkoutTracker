@@ -58,6 +58,10 @@ import com.example.workouttracker.workouts.CreateWorkoutViewModel
 import com.example.workouttracker.workouts.WorkoutsScreen
 import com.example.workouttracker.workouts.WorkoutsViewModel
 import com.example.workouttracker.you.YouScreen
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 enum class WorkoutTrackerScreen(@StringRes val title: Int, @DrawableRes val icon: Int) {
     Welcome(R.string.Welcome, R.drawable.dumbbell_solid),
@@ -71,6 +75,7 @@ enum class WorkoutTrackerScreen(@StringRes val title: Int, @DrawableRes val icon
 }
 
 class Main : ComponentActivity() {
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -88,8 +93,8 @@ class Main : ComponentActivity() {
 
                 val welcomeViewModel = WelcomeViewModel(sharedPreferences)
                 val mainViewModel = MainViewModel()
-                val workoutsViewModel = WorkoutsViewModel()
-                val createWorkoutViewModel = CreateWorkoutViewModel()
+                val workoutsViewModel = WorkoutsViewModel(database)
+                val createWorkoutViewModel = CreateWorkoutViewModel(database)
 
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
@@ -123,7 +128,7 @@ class Main : ComponentActivity() {
                             }
                             composable(WorkoutTrackerScreen.Workouts.name) {
                                 WorkoutsScreen({ navController.navigate(WorkoutTrackerScreen.CreateWorkout.name) },
-                                    Modifier.padding(padding), backGround)
+                                    Modifier.padding(padding), backGround, workoutsViewModel)
                             }
                             composable(WorkoutTrackerScreen.You.name) {
                                 YouScreen(Modifier.padding(padding), backGround)

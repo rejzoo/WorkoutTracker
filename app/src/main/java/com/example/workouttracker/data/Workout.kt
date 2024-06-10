@@ -8,7 +8,6 @@ import java.util.Date
 @Entity(tableName = "Workouts")
 data class Workout(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val date: Date
 )
 
 class DateConverter {

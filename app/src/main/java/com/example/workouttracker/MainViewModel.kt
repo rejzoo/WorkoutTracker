@@ -26,7 +26,8 @@ class MainViewModel : ViewModel() {
     {
         val screensWithoutBottomBar = listOf(
             WorkoutTrackerScreen.Welcome.name,
-            WorkoutTrackerScreen.Settings.name
+            WorkoutTrackerScreen.Settings.name,
+            WorkoutTrackerScreen.CreateWorkout.name
         )
 
         return currentRoute !in screensWithoutBottomBar

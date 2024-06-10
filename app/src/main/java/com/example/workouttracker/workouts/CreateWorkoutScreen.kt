@@ -1,5 +1,7 @@
 package com.example.workouttracker.workouts
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,6 +24,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -29,10 +35,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.TextFieldValue
@@ -50,6 +60,8 @@ import com.example.workouttracker.ui.theme.Black
 import com.example.workouttracker.ui.theme.DarkGray
 import com.example.workouttracker.ui.theme.DarkYellow
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.example.workouttracker.data.Exercise
+import kotlinx.coroutines.launch
 
 @Composable
 fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutViewModel, modifier: Modifier) {
@@ -57,14 +69,25 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
     var selectedExercise by rememberSaveable { mutableStateOf("") }
     var sets by rememberSaveable { mutableIntStateOf(0) }
     var reps by rememberSaveable { mutableIntStateOf(0) }
-    var weight by rememberSaveable { mutableIntStateOf(0) }
-    val scrollState = rememberScrollState()
+    var weight by rememberSaveable { mutableDoubleStateOf(0.0) }
+    val workoutViewScope = rememberCoroutineScope()
+    var exercises by rememberSaveable { mutableStateOf<List<Exercise>>(emptyList()) }
+    var selectedExerciseIndex by rememberSaveable { mutableStateOf<Int?>(null) }
+    var selectedExerciseCard by rememberSaveable { mutableStateOf<Exercise?>(null) }
+    val showDialog = rememberSaveable { mutableStateOf(false) }
+
+    fun resetInput() {
+        selectedType = ""
+        selectedExercise = ""
+        sets = 0
+        reps = 0
+        weight = 0.0
+    }
 
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .then(modifier)
-            .verticalScroll(scrollState),
+            .then(modifier),
         color = DarkGray
     ) {
         Column(
@@ -90,7 +113,7 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
                 NumberPicker(
                     value = sets,
                     onValueChange = { sets = it },
-                    label = "Sets"
+                    label = "*Sets"
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -98,15 +121,15 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
                 NumberPicker(
                     value = reps,
                     onValueChange = { reps = it },
-                    label = "Reps"
+                    label = "*Reps"
                 )
             }
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(25.dp))
 
             OutlinedTextField(
                 value = TextFieldValue("$weight"),
-                onValueChange = { weight = it.text.toIntOrNull() ?: 0 },
+                onValueChange = { weight = it.text.toDoubleOrNull() ?: 0.0 },
                 label = { Text("Weight (KG)", color = DarkYellow) },
                 modifier = Modifier
                     .width(150.dp)
@@ -120,7 +143,12 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
 
             Row {
                 Button(
-                    onClick = { popBackStack() },
+                    onClick = {
+                        workoutViewScope.launch {
+                            workoutView.deleteCurrentWorkout()
+                            popBackStack()
+                        }
+                    },
                     modifier = Modifier.height(50.dp),
                     colors = ButtonDefaults.buttonColors(contentColor = Black, containerColor = DarkYellow),
                     shape = RoundedCornerShape(12.dp)
@@ -134,20 +162,83 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
 
                 Spacer(modifier = Modifier.weight(1f))
 
+                if (selectedExerciseIndex == null) {
+                    Button(
+                        onClick = {
+                            workoutViewScope.launch {
+                                if (!workoutView.addExercise(selectedExercise, sets, reps, weight))
+                                    showDialog.value = true
+                                else
+                                    resetInput()
+                                exercises = workoutView.getListOfAllExercisesForCurrentWorkout()
+                            }
+                        },
+                        modifier = Modifier.height(50.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = Black,
+                            containerColor = DarkYellow
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "Add",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            workoutViewScope.launch {
+                                exercises = exercises.filterIndexed { index, _ -> index != selectedExerciseIndex }
+                                workoutView.deleteExercise(selectedExerciseCard)
+                                selectedExerciseIndex = null
+                            }
+                        },
+                        modifier = Modifier.height(50.dp),
+                        colors = ButtonDefaults.buttonColors(contentColor = Black, containerColor = DarkYellow),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                ShowAlertDialog(showDialog, "Input every field")
+                Spacer(modifier = Modifier.weight(1f))
+
                 Button(
                     onClick = {
-                        //workoutView.addExercise(selectedExercise, sets, reps, weight)
-                        popBackStack()
+                        workoutViewScope.launch {
+                            popBackStack()
+                            if (workoutView.workoutEmpty()) {
+                                workoutView.deleteCurrentWorkout()
+                            }
+                        }
                     },
                     modifier = Modifier.height(50.dp),
                     colors = ButtonDefaults.buttonColors(contentColor = Black, containerColor = DarkYellow),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
-                        text = "Add",
+                        text = "Save",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ExerciseItem(exercises) { index, exercise ->
+                    selectedExerciseIndex = index
+                    selectedExerciseCard = exercise
                 }
             }
         }
@@ -168,7 +259,7 @@ fun ExerciseDropdown(selectedType: String, selectedExercise: String,
         Box {
             TextButton(onClick = { expandedType = true }) {
                 Text(
-                    if (selectedType.isEmpty()) "Select type" else "Chosen type  ",
+                    if (selectedType.isEmpty()) "*Select type" else "Chosen type  ",
                     color = DarkYellow,
                     fontSize = 18.sp
                 )
@@ -198,7 +289,7 @@ fun ExerciseDropdown(selectedType: String, selectedExercise: String,
         Box {
             TextButton(onClick = { expandedExercise = true }) {
                 Text(
-                    if (selectedExercise.isEmpty()) "Select exercise" else "Selected exercise  ",
+                    if (selectedExercise.isEmpty()) "*Select exercise" else "Selected exercise  ",
                     color = DarkYellow,
                     fontSize = 18.sp
                 )
@@ -210,7 +301,7 @@ fun ExerciseDropdown(selectedType: String, selectedExercise: String,
 
             if (selectedType.isEmpty() && expandedExercise) showDialog.value = true
 
-            ShowAlertDialog(showDialog)
+            ShowAlertDialog(showDialog, "Select type first.")
 
             DropdownMenu(
                 expanded = expandedExercise,
@@ -289,7 +380,7 @@ fun NumberPicker(value: Int, onValueChange: (Int) -> Unit, label: String) {
 }
 
 @Composable
-fun ShowAlertDialog(showDialog: MutableState<Boolean>) {
+fun ShowAlertDialog(showDialog: MutableState<Boolean>, text: String) {
     if (showDialog.value) {
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
@@ -297,7 +388,7 @@ fun ShowAlertDialog(showDialog: MutableState<Boolean>) {
                 Text("Info")
             },
             text = {
-                Text("Select type first.")
+                Text(text)
             },
             confirmButton = {
                 TextButton(onClick = { showDialog.value = false }) {
@@ -305,5 +396,53 @@ fun ShowAlertDialog(showDialog: MutableState<Boolean>) {
                 }
             }
         )
+    }
+}
+
+@Composable
+fun ExerciseItem(
+    exercises: List<Exercise>,
+    onExerciseSelected: (Int, Exercise) -> Unit,
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(DarkGray)
+    ) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(vertical = 10.dp)
+        ) {
+            exercises.forEachIndexed { index, exercise ->
+                val numberExercise = index + 1
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp)
+                        .clickable {
+                            onExerciseSelected(index, exercise)
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "$numberExercise: ${exercise.name}",
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Sets: ${exercise.goalSets}, Reps: ${exercise.goalReps}, Weight: ${exercise.goalWeight}",
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                }
+            }
+        }
     }
 }
