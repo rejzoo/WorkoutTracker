@@ -11,7 +11,6 @@ import kotlinx.coroutines.withContext
 
 class WorkoutsViewModel(private val database: WorkoutDatabase,
                         databaseViewModel: DatabaseViewModel) : ViewModel() {
-
     val workouts: LiveData<List<Workout>> = databaseViewModel.workouts
 
     val exercises: LiveData<List<Exercise>> = databaseViewModel.exercises

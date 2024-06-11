@@ -40,7 +40,8 @@ class MainViewModel(pSharedPreferences: SharedPreferences) : ViewModel() {
         val screensWithoutBottomBar = listOf(
             WorkoutTrackerScreen.Welcome.name,
             WorkoutTrackerScreen.Settings.name,
-            WorkoutTrackerScreen.CreateWorkout.name
+            WorkoutTrackerScreen.CreateWorkout.name,
+            WorkoutTrackerScreen.Exercising.name
         )
 
         return currentRoute !in screensWithoutBottomBar

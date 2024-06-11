@@ -40,67 +40,89 @@ import com.example.workouttracker.data.Workout
 import com.example.workouttracker.ui.theme.Black
 import com.example.workouttracker.ui.theme.DarkGray
 import com.example.workouttracker.ui.theme.DarkYellow
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun ExerciseScreen(modifier: Modifier = Modifier, painter: Painter, exerciseViewModel: ExerciseViewModel) {
-    var showOptions by rememberSaveable { mutableStateOf(false) }
-    var startWorkout by rememberSaveable { mutableStateOf(false) }
+fun ExerciseScreen(modifier: Modifier = Modifier, painter: Painter,
+                   exerciseViewModel: ExerciseViewModel = viewModel(),
+                   navigateToCreateWorkoutScreen: () -> Unit) {
 
-    // prerobit selected workout na nieco jednoduchsie napr id alebo string pada preto
-    var selectedWorkout by rememberSaveable { mutableStateOf<Workout?>(null) }
+    var selectedWorkout by rememberSaveable { exerciseViewModel.selectedWorkout }
+    var startWorkout by rememberSaveable { exerciseViewModel.startWorkout }
+    var showOptions by rememberSaveable { exerciseViewModel.showOptions }
     val workouts by exerciseViewModel.workouts.observeAsState(emptyList())
 
+    println("AA")
+    println("AA" + exerciseViewModel.showOptions.value)
+    println("AA" + exerciseViewModel.startWorkout.value)
+
     Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(modifier)
+        modifier = Modifier.fillMaxSize().then(modifier)
     ) {
-        Image(
-            painter = painter,
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.FillBounds,
-        )
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painter,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.FillBounds,
+            )
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                ,
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (!showOptions && !startWorkout) {
-                    Button(
-                        onClick = { showOptions = true },
-                        modifier = Modifier.height(60.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            contentColor = Black,
-                            containerColor = DarkYellow
-                        ),
-                        shape = RoundedCornerShape(12.dp)
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "Select workout",
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            if (!showOptions && !startWorkout) {
+                                Button(
+                                    onClick = {
+                                        exerciseViewModel.showOptions.value = true
+                                    },
+                                    modifier = Modifier.height(60.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        contentColor = Black,
+                                        containerColor = DarkYellow
+                                    ),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(
+                                        text = "Select workout",
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
 
-                if (showOptions) {
+                            if (exerciseViewModel.showOptions.value) {
+                                ButtonOptionsExample(
+                                    options = workouts,
+                                    onOptionSelected = { workout ->
+                                        selectedWorkout = workout.id
+                                        showOptions = false
+                                        startWorkout = true
+                                    }
+                                )
+                            }
 
-                    ButtonOptionsExample(
-                        options = workouts,
-                        onOptionSelected = { workout ->
-                            selectedWorkout = workout
-                            showOptions = false
-                            startWorkout = true
+                            if (startWorkout && selectedWorkout != null) {
+                                showOptions = false
+                                startWorkout = false
+                                navigateToCreateWorkoutScreen()
+                            }
                         }
-                    )
-                }
-
-                if (startWorkout && selectedWorkout != null) {
-                    WorkoutUI(exerciseViewModel)
+                    }
                 }
             }
         }
@@ -118,149 +140,34 @@ fun ButtonOptionsExample(
             .padding(20.dp),
         color = Color.Transparent
     ) {
-        LazyColumn(
+        Box(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            contentAlignment = Alignment.Center
         ) {
-            items(options) { option ->
-                Button(
-                    onClick = { onOptionSelected(option) },
-                    modifier = Modifier
-                        .padding(vertical = 8.dp)
-                        .height(70.dp)
-                        .widthIn(min = 200.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = Black,
-                        containerColor = DarkYellow
-                    ),
-                ) {
-                    Text(
-                        text = option.name,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun WorkoutUI(exerciseViewModel: ExerciseViewModel) {
-    Surface(
-        color = Color.Transparent
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Timer(exerciseViewModel)
-            SetsAndReps(exerciseViewModel)
-        }
-    }
-}
-
-@Composable
-fun Timer(exerciseViewModel: ExerciseViewModel) {
-    var elapsedTime by rememberSaveable { mutableLongStateOf(0L) }
-    var isTimerRunning by rememberSaveable { mutableStateOf(false) }
-
-    /*
-    LaunchedEffect(isTimerRunning) {
-        while (isTimerRunning) {
-            delay(1000)
-            elapsedTime++
-        }
-    }*/
-
-    Surface(
-        color = Color.Transparent,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(25.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = exerciseViewModel.formatTime(elapsedTime),
-                fontSize = 30.sp
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
-
-@Composable
-fun SetsAndReps(exerciseViewModel: ExerciseViewModel) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        color = Color.Transparent
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(DarkGray)
-                        .padding(8.dp)
-                        .size(120.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Top,
-                        horizontalAlignment = Alignment.Start
+                options.forEach { option ->
+                    Button(
+                        onClick = { onOptionSelected(option) },
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                            .height(70.dp)
+                            .widthIn(min = 200.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = Black,
+                            containerColor = DarkYellow
+                        ),
                     ) {
                         Text(
-                            text = "Sets",
-                            fontSize = 25.sp,
-                            color = DarkYellow
+                            text = option.name,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
-                    Text(
-                        text = "B",
-                        modifier = Modifier.align(Alignment.Center),
-                        fontSize = 50.sp,
-                        color = Color.White
-                    )
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(DarkGray)
-                        .padding(8.dp)
-                        .size(120.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Top,
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        Text(
-                            text = "Reps",
-                            fontSize = 25.sp,
-                            color = DarkYellow
-                        )
-                    }
-                    Text(
-                        text = "0",
-                        modifier = Modifier.align(Alignment.Center),
-                        fontSize = 50.sp,
-                        color = Color.White
-                    )
                 }
             }
         }

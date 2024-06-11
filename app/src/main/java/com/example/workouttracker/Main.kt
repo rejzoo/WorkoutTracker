@@ -1,6 +1,8 @@
 package com.example.workouttracker
 
+import android.app.Notification
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -30,9 +32,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +45,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -64,6 +71,8 @@ import com.example.workouttracker.workouts.CreateWorkoutViewModel
 import com.example.workouttracker.workouts.WorkoutsScreen
 import com.example.workouttracker.workouts.WorkoutsViewModel
 import com.example.workouttracker.you.YouScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.workouttracker.exercise.ExercisingScreen
 
 enum class WorkoutTrackerScreen(@StringRes val title: Int, @DrawableRes val icon: Int) {
     Welcome(R.string.Welcome, R.drawable.dumbbell_solid),
@@ -73,7 +82,8 @@ enum class WorkoutTrackerScreen(@StringRes val title: Int, @DrawableRes val icon
     You(R.string.You, R.drawable.user_solid),
     Exercise(R.string.Exercise, R.drawable.start_solid),
     Statistics(R.string.Statistics, R.drawable.statistics_solid),
-    CreateWorkout(R.string.Create, R.drawable.dumbbell_solid)
+    CreateWorkout(R.string.Create, R.drawable.dumbbell_solid),
+    Exercising(R.string.Exercising, R.drawable.dumbbell_solid)
 }
 
 class Main : ComponentActivity() {
@@ -118,7 +128,10 @@ class Main : ComponentActivity() {
                 val welcomeViewModel = WelcomeViewModel(sharedPreferences)
                 val workoutsViewModel = WorkoutsViewModel(database, databaseViewModel)
                 val createWorkoutViewModel = CreateWorkoutViewModel(database, notification)
-                val exerciseViewModel = ExerciseViewModel(database, databaseViewModel)
+                val exerciseViewModel = remember {
+                    ExerciseViewModel(database, databaseViewModel
+                    ) { navController.navigate(WorkoutTrackerScreen.Exercise.name) }
+                }
 
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
@@ -158,15 +171,19 @@ class Main : ComponentActivity() {
                                 YouScreen(Modifier.padding(padding), backGround)
                             }
                             composable(WorkoutTrackerScreen.Exercise.name) {
-                                ExerciseScreen(Modifier.padding(padding), backGround, exerciseViewModel)
+                                ExerciseScreen(Modifier.padding(padding), backGround, exerciseViewModel
+                                ) { navController.navigate(WorkoutTrackerScreen.Exercising.name) }
                             }
                             composable(WorkoutTrackerScreen.Statistics.name) {
                                 StatisticsScreen(Modifier.padding(padding), backGround)
                             }
-                            composable(WorkoutTrackerScreen.CreateWorkout.name)
-                            {
+                            composable(WorkoutTrackerScreen.CreateWorkout.name) {
                                 CreateWorkoutScreen({ navController.popBackStack() },
                                     createWorkoutViewModel, Modifier.padding(padding))
+                            }
+                            composable(WorkoutTrackerScreen.Exercising.name) {
+                                ExercisingScreen(exerciseViewModel, backGround, Modifier.padding(padding)
+                                ) { navController.popBackStack() }
                             }
                         }
                     }
@@ -226,7 +243,7 @@ fun TopBar(currentRoute: String?, mainViewModel: MainViewModel, navController: N
 
 @Composable
 fun NavigationBarButtons(navController: NavController) {
-    var selectedItem by remember { mutableIntStateOf(0) }
+    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
 
     val navigationScreens = listOf(
         WorkoutTrackerScreen.Home,
