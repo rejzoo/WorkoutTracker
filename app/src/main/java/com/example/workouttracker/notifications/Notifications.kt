@@ -17,6 +17,7 @@ class Notifications(private val context: Context) {
     private val channelId = "1"
     private val channelName = "Notifications"
     private val channelDescription = "Sending notifications"
+    private var disabledNotifications = false
 
     init {
         createNotificationChannel()
@@ -33,28 +34,39 @@ class Notifications(private val context: Context) {
     }
 
     fun showNotification(notificationId: Int, title: String, contentText: String, activityClass: Class<*>) {
-        val intent = Intent(context, activityClass).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-
-        val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.marker_solid)
-            .setContentTitle(title)
-            .setContentText(contentText)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-
-        with(NotificationManagerCompat.from(context)) {
-            if (ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                return
+        if (!disabledNotifications) {
+            val intent = Intent(context, activityClass).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
-            notify(notificationId, builder.build())
+            val pendingIntent: PendingIntent =
+                PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+            val builder = NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(R.drawable.marker_solid)
+                .setContentTitle(title)
+                .setContentText(contentText)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+
+            with(NotificationManagerCompat.from(context)) {
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
+                notify(notificationId, builder.build())
+            }
         }
+    }
+
+    fun setNotificationsStatus(value: Boolean) {
+        disabledNotifications = value
+    }
+
+    fun getNotificationsStatus(): Boolean {
+        return disabledNotifications
     }
 }

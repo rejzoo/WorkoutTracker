@@ -40,7 +40,7 @@ import com.example.workouttracker.ui.theme.DarkYellow
 
 @Composable
 fun ExercisingScreen(exerciseViewModel: ExerciseViewModel, painter: Painter,
-                    modifier: Modifier, popBackStack: () -> Unit) {
+                    modifier: Modifier) {
 
     var redrawSetsAndReps by remember { mutableStateOf(false) }
 
@@ -74,14 +74,6 @@ fun ExercisingScreen(exerciseViewModel: ExerciseViewModel, painter: Painter,
 fun Timer(exerciseViewModel: ExerciseViewModel) {
     var elapsedTime by rememberSaveable { mutableLongStateOf(0L) }
     var isTimerRunning by rememberSaveable { mutableStateOf(false) }
-
-    /*
-    LaunchedEffect(isTimerRunning) {
-    while (isTimerRunning) {
-        delay(1000)
-        elapsedTime++
-    }
-    }*/
 
     Surface(
         color = Color.Transparent,

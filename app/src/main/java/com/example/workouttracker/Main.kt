@@ -1,8 +1,6 @@
 package com.example.workouttracker
 
-import android.app.Notification
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -32,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -45,9 +42,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -71,7 +65,6 @@ import com.example.workouttracker.workouts.CreateWorkoutViewModel
 import com.example.workouttracker.workouts.WorkoutsScreen
 import com.example.workouttracker.workouts.WorkoutsViewModel
 import com.example.workouttracker.you.YouScreen
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.workouttracker.exercise.ExercisingScreen
 
 enum class WorkoutTrackerScreen(@StringRes val title: Int, @DrawableRes val icon: Int) {
@@ -157,8 +150,7 @@ class Main : ComponentActivity() {
                                     welcomeViewModel, Modifier.padding(padding))
                             }
                             composable(WorkoutTrackerScreen.Settings.name) {
-                                SettingsScreen({ navController.popBackStack() },
-                                    Modifier.padding(padding), backGround)
+                                SettingsScreen(Modifier.padding(padding), backGround, notification)
                             }
                             composable(WorkoutTrackerScreen.Home.name) {
                                 HomeScreen(Modifier.padding(padding), backGround)
@@ -182,8 +174,7 @@ class Main : ComponentActivity() {
                                     createWorkoutViewModel, Modifier.padding(padding))
                             }
                             composable(WorkoutTrackerScreen.Exercising.name) {
-                                ExercisingScreen(exerciseViewModel, backGround, Modifier.padding(padding)
-                                ) { navController.popBackStack() }
+                                ExercisingScreen(exerciseViewModel, backGround, Modifier.padding(padding))
                             }
                         }
                     }

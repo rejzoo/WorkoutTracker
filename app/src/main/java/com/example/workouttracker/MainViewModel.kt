@@ -50,7 +50,7 @@ class MainViewModel(pSharedPreferences: SharedPreferences) : ViewModel() {
     fun getDescriptionFromRoute(route: String?): String
     {
         return when (route) {
-            "Home" -> "Home Screen"
+            "Home" -> "Motivation"
             "Workouts" -> "Plan or create workouts"
             "Statistics" -> "Statistics of your progress"
             "Exercise" -> "Start workout"

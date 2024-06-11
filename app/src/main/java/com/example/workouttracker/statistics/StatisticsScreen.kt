@@ -7,8 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.navigation.NavHostController
-import com.example.workouttracker.ui.theme.Black
 
 @Composable
 fun StatisticsScreen(modifier: Modifier, painter: Painter) {
