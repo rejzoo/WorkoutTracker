@@ -1,11 +1,14 @@
 package com.example.workouttracker
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +51,7 @@ import com.example.workouttracker.data.WorkoutDatabase
 import com.example.workouttracker.exercise.ExerciseScreen
 import com.example.workouttracker.exercise.ExerciseViewModel
 import com.example.workouttracker.home.HomeScreen
+import com.example.workouttracker.notifications.Notifications
 import com.example.workouttracker.settings.SettingsScreen
 import com.example.workouttracker.statistics.StatisticsScreen
 import com.example.workouttracker.ui.theme.Black
@@ -73,11 +77,34 @@ enum class WorkoutTrackerScreen(@StringRes val title: Int, @DrawableRes val icon
 }
 
 class Main : ComponentActivity() {
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        val sharedPreferences = getSharedPreferences("user_goal", Context.MODE_PRIVATE)
         val database = WorkoutDatabase.getDatabase(this)
+        val notification = Notifications(this)
+        val mainViewModel = MainViewModel(sharedPreferences)
+
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                notification.showNotification(
+                    notificationId = 1,
+                    title = "Enabled",
+                    contentText = "Notifications are enabled.",
+                    activityClass = Main::class.java
+                )
+                mainViewModel.setFirstRunToFalse()
+            }
+        }
+
+        if (mainViewModel.getFirstRun()) {
+            mainViewModel.requestPermission(this, notification, requestPermissionLauncher)
+        }
 
         setContent {
             WorkoutTrackerTheme {
@@ -85,14 +112,12 @@ class Main : ComponentActivity() {
                 val navController = rememberNavController()
                 val currentBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = currentBackStackEntry?.destination?.route
-                val sharedPreferences = getSharedPreferences("user_goal", Context.MODE_PRIVATE)
                 val backGround = painterResource(R.drawable.back_black)
 
                 val databaseViewModel = DatabaseViewModel(database)
                 val welcomeViewModel = WelcomeViewModel(sharedPreferences)
-                val mainViewModel = MainViewModel()
                 val workoutsViewModel = WorkoutsViewModel(database, databaseViewModel)
-                val createWorkoutViewModel = CreateWorkoutViewModel(database)
+                val createWorkoutViewModel = CreateWorkoutViewModel(database, notification)
                 val exerciseViewModel = ExerciseViewModel(database, databaseViewModel)
 
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background

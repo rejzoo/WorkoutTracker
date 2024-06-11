@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
-import androidx.navigation.NavController
 
 class WelcomeViewModel(pSharedPreferences: SharedPreferences) : ViewModel() {
     private var sharedPreferences = pSharedPreferences

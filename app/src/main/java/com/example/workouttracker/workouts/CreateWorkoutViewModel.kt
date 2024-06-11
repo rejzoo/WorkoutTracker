@@ -3,10 +3,12 @@ package com.example.workouttracker.workouts
 import androidx.lifecycle.ViewModel
 import com.example.workouttracker.data.Exercise
 import com.example.workouttracker.data.WorkoutDatabase
+import com.example.workouttracker.notifications.Notifications
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class CreateWorkoutViewModel(private val database: WorkoutDatabase) : ViewModel() {
+class CreateWorkoutViewModel(private val database: WorkoutDatabase,
+                             private val notifications: Notifications) : ViewModel() {
 
     private val exercisesPush = listOf("Dumbbell bench press", "Lateral raises", "Incline dumbbell press",
         "Dip", "Overhead press", "Pushups", "Tricep pushdowns", "Chest fly",
@@ -100,5 +102,14 @@ class CreateWorkoutViewModel(private val database: WorkoutDatabase) : ViewModel(
         withContext(Dispatchers.IO) {
             database.workoutDao().updateWorkoutName(getActualWorkoutId(), newName)
         }
+    }
+
+    fun raiseNotiWorkoutNotAdded() {
+        notifications.showNotification(
+            notificationId = 1,
+            title = "Workout not saved",
+            contentText = "Workout was empty.",
+            activityClass = CreateWorkoutViewModel::class.java
+        )
     }
 }

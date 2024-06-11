@@ -244,6 +244,7 @@ fun CreateWorkoutScreen(popBackStack: () -> Unit, workoutView: CreateWorkoutView
                                 workoutView.updateWorkoutName(nameOfWorkout)
                                 if (exercises.isEmpty()) {
                                     workoutView.deleteCurrentWorkout()
+                                    workoutView.raiseNotiWorkoutNotAdded()
                                 }
                             }
                             popBackStack()

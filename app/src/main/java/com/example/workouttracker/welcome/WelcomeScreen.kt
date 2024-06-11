@@ -22,7 +22,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,7 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.workouttracker.R
-import com.example.workouttracker.WorkoutTrackerScreen
 import com.example.workouttracker.ui.theme.Black
 import com.example.workouttracker.ui.theme.DarkYellow
 import java.text.DateFormat
@@ -44,7 +42,6 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WelcomeScreen(navigate: () -> Unit, welcomeViewModel: WelcomeViewModel, modifier: Modifier = Modifier) {
-
     var userInput by rememberSaveable { mutableStateOf(welcomeViewModel.getUserInput()) }
     val dateInput = welcomeViewModel.getInputDate()
     val firstRun = welcomeViewModel.getFirstRun()
