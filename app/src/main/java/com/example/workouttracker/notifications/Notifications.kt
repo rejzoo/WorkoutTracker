@@ -17,7 +17,7 @@ class Notifications(private val context: Context) {
     private val channelId = "1"
     private val channelName = "Notifications"
     private val channelDescription = "Sending notifications"
-    private var disabledNotifications = false
+    private var disabledNotifications = true
 
     init {
         createNotificationChannel()
