@@ -99,8 +99,10 @@ class CreateWorkoutViewModel(private val database: WorkoutDatabase,
     }
 
     suspend fun updateWorkoutName(newName: String) {
+        var name = newName
+        if (newName == "") name = "Workout"
         withContext(Dispatchers.IO) {
-            database.workoutDao().updateWorkoutName(getActualWorkoutId(), newName)
+            database.workoutDao().updateWorkoutName(getActualWorkoutId(), name)
         }
     }
 

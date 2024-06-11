@@ -74,5 +74,5 @@ dependencies {
     annotationProcessor("com.google.dagger:dagger-compiler:2.51.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.compose.runtime:runtime-livedata:1.0.0-beta01")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.7")
 }
